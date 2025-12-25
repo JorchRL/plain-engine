@@ -1,15 +1,39 @@
 # Plain Engine - Advanced Racing Game Engine
 
-A sophisticated, cross-platform racing game engine built with **C/C++** and composability in mind. Designed for incremental development from simple games to iRacing-level racing simulations.
+A sophisticated, cross-platform racing game engine built with **C/C++** using **Raylib as core dependency**. Designed for incremental development from simple games to iRacing-level racing simulations.
 
 ## 🎯 Philosophy
 
-- **Platform Independence**: Handmade Hero-style platform abstraction layer
-- **Plain C Style**: Minimal C++ features, maximum portability and performance
+- **Smart Dependency Usage**: Leverage Raylib for what it does well, extend where needed
+- **Platform Independence**: Handmade Hero-style platform layer that wraps Raylib + abstractions
+- **Pragmatic C++**: Use standard library where appropriate, plain C style for performance
 - **Composable Architecture**: Modular systems that can be combined and extended
 - **Game as Editor**: Media Molecule approach with hot-reloading and immediate-mode UI
 - **Test-Driven Development**: Comprehensive testing with Google Test and headless testing
 - **Performance First**: Optimized for 60 FPS on all target platforms
+
+## 🧩 Raylib Integration Strategy
+
+**Raylib provides a foundation** for core systems, with our engine adding sophisticated features on top:
+
+### ✅ What Raylib Handles (Don't Reinvent)
+- **Window Management**: Creation, sizing, fullscreen, vsync
+- **Basic Input**: Keyboard, mouse, gamepad support
+- **3D Rendering**: Raylib 3D mode with OpenGL (excellent cross-platform 3D!)
+- **2D Rendering**: Sprites, text, shapes (for UI/debug)
+- **Basic Audio**: Sound loading and playback
+- **File I/O**: Simple asset loading
+- **Time Management**: Delta time, frame timing
+
+### 🔧 What Our Engine Adds (Value Layer)
+- **Advanced Physics**: Wassimulator-inspired vehicle simulation (beyond Raylib's basic physics)
+- **Entity System**: Data-oriented ECS with hot-reloading and serialization
+- **Sophisticated Audio**: 3D spatial audio, vehicle sound simulation
+- **Multiplayer**: Networking, client prediction, local multiplayer
+- **Advanced Input**: Action mapping, vehicle controls, context system
+- **Resource Management**: Streaming, bundles, format-agnostic loaders
+- **Debug Tools**: Comprehensive debugging and profiling systems
+- **Editor Integration**: Media Molecule "game as editor" approach
 
 ## 📁 Project Structure
 
@@ -95,27 +119,29 @@ cmake .. && make
 
 ## 🏗️ Architecture
 
-### Engine Systems
+### Engine Systems (Layered Approach)
 
-The engine provides a comprehensive system architecture:
+The engine builds **on Raylib as foundation**, leveraging its proven cross-platform capabilities while adding sophisticated systems:
 
 ```cpp
-// Core Foundation
-Platform Layer      // Handmade Hero-style abstraction
-Memory System       // Arena allocators, tracking
-Threading System     // Job-based parallel processing
-Testing Framework    // TDD with Google Test
+// Foundation Layer (Raylib)
+Raylib Core         // Window, input, 3D rendering, basic audio, file I/O
 
-// Core Engine Systems
+// Engine Extension Layer (Our Code - When Raylib Insufficient)
+Platform Extension   // Additional platform abstractions beyond Raylib
+Memory System       // Arena allocators, tracking (beyond Raylib's simple alloc)
+Threading System     // C++ std::thread (when Raylib's simple threading insufficient)
+
+// Game Systems Layer
 Entity System        // Data-oriented ECS with hot-reloading
 Physics System       // Wassimulator-inspired vehicle simulation
-Resource System      // Format-agnostic asset management
-Input System         // Platform-agnostic input with action mapping
-Rendering System     // Multi-API rendering (OpenGL/Metal/DirectX/Vulkan)
-Audio System         // Real-time 3D spatial audio
+Resource System      // Advanced asset management (beyond Raylib's basic loading)
+Input Extension     // Action mapping, vehicle controls, contexts
+Advanced Rendering  // 3D rendering (beyond Raylib's 2D focus)
+Advanced Audio      // 3D spatial audio, vehicle simulation
 
 // Advanced Systems
-Multiplayer System   // Authoritative server with client prediction
+Multiplayer System   // Networking, client prediction, local multiplayer
 Editor System       // In-game editor with immediate-mode UI
 Debug Tools         // Comprehensive debugging and profiling
 ```
@@ -213,16 +239,17 @@ public:
 ### Prerequisites
 - **C++20** compatible compiler (GCC 10+, Clang 12+, MSVC 2022+)
 - **CMake 3.25+** for build system
+- **Raylib** - Core graphics/input/windowing library (auto-fetched by CMake)
 - **Google Test** for testing framework (auto-fetched)
 - **Platform SDKs**: 
   - Windows: Windows 10 SDK
   - macOS: Xcode 14+
   - Linux: Mesa development libraries
 - **Optional Graphics APIs**:
-  - OpenGL 4.1+ (fallback)
-  - Metal (macOS)
-  - DirectX 11/12 (Windows)
-  - Vulkan (optional)
+  - OpenGL 4.1+ (Raylib handles)
+  - Metal (Raylib handles on macOS)
+  - DirectX 11 (Raylib handles on Windows)
+  - Vulkan (Raylib support)
 
 ### Building
 
@@ -274,23 +301,42 @@ make coverage
 
 ## 🎨 System APIs
 
-### Rendering (Multi-API Abstraction)
+### Rendering (Raylib-First 3D)
+
+Raylib provides solid OpenGL 3D rendering capabilities that should be our default:
+
 ```cpp
-// Multi-API rendering (OpenGL/Metal/DirectX/Vulkan)
-Renderer* renderer = Renderer_Create(window, preferredAPI);
-Renderer_BeginFrame(renderer);
-Renderer_Render(renderer);
-Renderer_EndFrame(renderer);
+// Raylib 3D rendering (our default and preferred approach)
+RaylibBeginMode3D(camera);
+RaylibDrawModel(vehicleModel, vehiclePosition, 1.0f, WHITE);  // 3D vehicles
+RaylibDrawModel(trackModel, trackPosition, 1.0f, WHITE);     // 3D tracks
+RaylibDrawGrid(10, 1.0f);  // Track surface
+RaylibEndMode3D();
 
-// 2D rendering
-Renderer2D_DrawSprite(renderer2D, &sprite);
-Renderer2D_DrawText(renderer2D, &text);
-Renderer2D_DrawDebugPhysics(renderer2D, physicsWorld);
+// Raylib 2D for UI overlay (same context)
+RaylibBeginDrawing();
+RaylibDrawText("Speed: 120 km/h", 10, 10, 20, WHITE);
+RaylibDrawRectangleRec(hudBounds, Fade(BLACK, 0.7f));
+RaylibEndDrawing();
+```
 
-// 3D rendering
-Renderer_AddRenderObject(renderer, &renderObject);
-Renderer_SetActiveCamera(renderer, cameraIndex);
-Renderer_EnableShadows(renderer, true);
+### Multi-API Extension (When Needed)
+
+When we need to go beyond Raylib's capabilities (future-proofing):
+
+```cpp
+// If Raylib OpenGL isn't sufficient, our extensible system:
+#if ENABLE_ADVANCED_RENDERING
+    Renderer* advancedRenderer = Renderer_Create(raylibWindow, API_VULKAN);
+    Renderer_BeginFrame(advancedRenderer);
+    Renderer_Render3D(advancedRenderer);
+    Renderer_EndFrame(advancedRenderer);
+#else
+    // Default to Raylib's excellent 3D support
+    RaylibBeginMode3D(camera);
+    RaylibDrawModel(vehicleModel, vehiclePosition, 1.0f, WHITE);
+    RaylibEndMode3D();
+#endif
 ```
 
 ### Physics (Wassimulator-Inspired)
@@ -307,25 +353,38 @@ VehicleComponent_SetThrottle(vehicle, throttleInput);
 VehicleComponent_SetSteering(vehicle, steeringInput);
 ```
 
-### Audio (3D Spatial Audio)
+### Audio (Enhanced Beyond Raylib)
 ```cpp
-// Real-time audio with vehicle simulation
-AudioContext* audio = AudioContext_Create(&audioConfig);
-VehicleAudio* vehicleAudio = VehicleAudio_Create(audio, arena);
+// Raylib for basic audio (simple playback)
+Sound engineSound = RaylibLoadSound("engine.wav");
+RaylibPlaySound(engineSound);
+
+// Our advanced 3D spatial audio system
+AudioContext* audio3D = AudioContext_Create(&audioConfig);
+VehicleAudio* vehicleAudio = VehicleAudio_Create(audio3D, arena);
 VehicleAudio_SetEngineState(vehicleAudio, rpm, throttle, load, gear);
-VehicleAudio_SetPosition(vehicleAudio, vehiclePosition);
+VehicleAudio_SetPosition(vehicleAudio, vehiclePosition);  // 3D spatial positioning
+VehicleAudio_SetVelocity(vehicleAudio, vehicleVelocity);  // Doppler effects
 ```
 
-### Input (Platform-Agnostic)
+### Input (Enhanced Beyond Raylib)
 ```cpp
-// Action-based input system
+// Raylib for basic input (where sufficient)
+if (RaylibIsKeyPressed(KEY_W)) { accelerate = 1.0f; }
+if (RaylibIsKeyPressed(KEY_S)) { brake = 1.0f; }
+
+// Our advanced input system (action mapping, contexts, vehicle controls)
 ActionSystem* actions = ActionSystem_Create(arena);
 ActionSystem_AddKeyBinding(actions, "accelerate", KEY_W);
 ActionSystem_AddGamepadBinding(actions, "brake", 0, GAMEPAD_LT);
 
+// Raylib integration
+InputManager* input = InputManager_Create(arena);
+InputManager_UpdateFromRaylib(input);  // Wrap Raylib's input state
+
 // Vehicle-specific input handling
 VehicleInputHandler* vehicleInput = VehicleInput_Create(arena);
-VehicleInput_Update(vehicleInput, actionSystem);
+VehicleInput_Update(vehicleInput, actions);  // Use our action system
 const VehicleInputState* state = VehicleInput_GetState(vehicleInput);
 ```
 
@@ -524,11 +583,61 @@ MIT License - see LICENSE file for details.
 - **Entity Component System**: Data-oriented design patterns
 - **Google Test**: Testing framework and methodology
 
-### Third-Party Libraries
+### Dependencies Strategy
+
+#### Core Dependencies (Fixed)
+- **Raylib**: Core graphics, window, input, basic audio (MIT license)
+  - Handles window creation and management
+  - Provides cross-platform input handling
+  - Basic 2D rendering and text
+  - Simple audio loading/playback
+  - File I/O abstraction
+- **C++ Standard Library**: Standard library features where appropriate
+  - `<thread>` for threading (when sufficient)
+  - `<memory>` for smart pointers (when beneficial)
+  - `<algorithm>` for standard algorithms
+  - `<chrono>` for time management (when appropriate)
+
+#### Additional Dependencies (As Needed)
 - **Google Test/Mock**: Testing framework (MIT license)
-- **Raylib**: Initial prototyping and some platform code (MIT license)
 - **Platform SDKs**: Native platform APIs (proprietary)
 - **Compression Libraries**: Asset compression (various open source licenses)
+- **Network Libraries**: Advanced networking if needed beyond Raylib
+
+#### Integration Philosophy
+- **Wrap, Don't Replace**: Leverage Raylib's strengths, extend weaknesses
+- **Standard Library First**: Use C++ stdlib when sufficient and portable
+- **Platform-Specific When Necessary**: Use native APIs only when stdlib/Raylib insufficient
+- **Minimal External Dependencies**: Each additional dependency must provide significant value
+
+### Threading Strategy (Pragmatic Approach)
+
+Our platform layer follows a pragmatic threading approach:
+
+```cpp
+// Prefer C++ std::thread (portable, well-supported)
+std::thread workerThread(workerFunction, data);
+workerThread.join();
+
+// Use std::mutex for synchronization
+std::mutex mutex;
+std::lock_guard<std::mutex> lock(mutex);
+// Do work
+// Automatically unlocked when lock goes out of scope
+
+// Platform-specific threads only when C++ std::thread insufficient
+// Examples: real-time threads, specific scheduling, platform features
+PlatformThread* thread = Platform_CreateThread(workerFunction, data);
+Platform_JoinThread(thread);
+
+// Platform mutex only when needed (priority inversion, specific behavior)
+PlatformMutex* mutex = Platform_CreateMutex();
+Platform_LockMutex(mutex);
+// Do work
+Platform_UnlockMutex(mutex);
+```
+
+**Guideline**: Use C++ standard library by default, platform-specific only when clearly needed.
 
 ---
 
