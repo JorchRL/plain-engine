@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.25)
 project(engine VERSION 0.1.0 LANGUAGES CXX)
 
 add_library(engine STATIC
-    src/game.cpp
     src/run.cpp
 )
 
@@ -22,7 +21,7 @@ if(NOT raylib_FOUND)
   )
   FetchContent_MakeAvailable(raylib)
 endif()
-target_link_libraries(engine PRIVATE raylib) # make PUBLIC only if engine's public headers include raylib
+target_link_libraries(engine PUBLIC raylib) # make PUBLIC so executable can access raylib headers
 
 
 # Optional install/export for future find_package(engine)

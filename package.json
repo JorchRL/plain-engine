@@ -1,0 +1,17 @@
+{
+  "name": "plain-engine",
+  "version": "0.1.0",
+  "description": "A minimal C++ game engine using Raylib",
+  "private": true,
+  "scripts": {
+    "build": "cd cpp && make",
+    "clean": "cd cpp && make clean"
+  },
+  "keywords": ["game", "engine", "cpp", "raylib"],
+  "author": "Jorge Romero Lagunas",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "."
+  }
+}

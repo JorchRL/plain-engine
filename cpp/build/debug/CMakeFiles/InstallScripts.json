@@ -1,0 +1,8 @@
+{
+	"InstallScripts" : 
+	[
+		"/Users/jorgeromerolagunas/projects/c++/plain-engine/cpp/build/debug/cmake_install.cmake",
+		"/Users/jorgeromerolagunas/projects/c++/plain-engine/cpp/build/debug/lib/engine/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

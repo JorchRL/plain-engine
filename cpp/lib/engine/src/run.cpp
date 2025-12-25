@@ -1,5 +1,5 @@
-#include "run.h"
-#include "raylib.h"
+#include "../include/run.h"
+#include <raylib.h>
 
 namespace engine {
 int run(Game &game, int width, int height, const char *title) {
@@ -9,7 +9,8 @@ int run(Game &game, int width, int height, const char *title) {
 
   game.onStart();
   while (!WindowShouldClose() && !game.wantsToQuit()) {
-    game.onUpdate();
+    float deltaTime = GetFrameTime();
+    game.onUpdate(deltaTime);
     BeginDrawing();
     ClearBackground(BLACK);
     game.onRender();
@@ -18,4 +19,9 @@ int run(Game &game, int width, int height, const char *title) {
   CloseWindow();
   return 0;
 }
+
+int run(Game &game, const GameConfig& config) {
+  return run(game, config.width, config.height, config.title.c_str());
+}
+
 } // namespace engine

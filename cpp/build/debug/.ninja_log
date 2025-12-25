@@ -1,0 +1,5 @@
+# ninja log v7
+0	263	1766603251416318939	lib/engine/CMakeFiles/engine.dir/src/run.cpp.o	940d145bb79ae2e4
+264	295	1766603251680522982	lib/engine/libengine.a	22fa5084a99babd5
+0	400	1766603251416472646	CMakeFiles/pacman.dir/src/main.cpp.o	8e566585645e95fb
+400	431	1766603251816043533	bin/pacman	cc3343b69aa2c4e9

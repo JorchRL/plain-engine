@@ -1,0 +1,6 @@
+/Users/jorgeromerolagunas/projects/c++/plain-engine/cpp/build/debug/CMakeFiles/pacman.dir
+/Users/jorgeromerolagunas/projects/c++/plain-engine/cpp/build/debug/CMakeFiles/edit_cache.dir
+/Users/jorgeromerolagunas/projects/c++/plain-engine/cpp/build/debug/CMakeFiles/rebuild_cache.dir
+/Users/jorgeromerolagunas/projects/c++/plain-engine/cpp/build/debug/lib/engine/CMakeFiles/engine.dir
+/Users/jorgeromerolagunas/projects/c++/plain-engine/cpp/build/debug/lib/engine/CMakeFiles/edit_cache.dir
+/Users/jorgeromerolagunas/projects/c++/plain-engine/cpp/build/debug/lib/engine/CMakeFiles/rebuild_cache.dir
